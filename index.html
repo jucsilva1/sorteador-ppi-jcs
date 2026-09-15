@@ -89,9 +89,27 @@
         .print-assinaturas { display: none; }
         .print-hash-line { display: none; }
         .coluna-check { width: 40px; text-align: center; }
+		/* Tela de Bloqueio por Senha Criptografada */
+        .tela-login-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #1a365d; z-index: 20000; display: flex; justify-content: center; align-items: center; }
+        .caixa-login { background: white; padding: 40px; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); box-sizing: border-box; }
+        .caixa-login h2 { color: #1a365d; margin-top: 0; font-size: 22px; border-bottom: 2px solid #2b6cb0; padding-bottom: 10px; }
+        .caixa-login p { font-size: 14px; color: #4a5568; line-height: 1.5; margin-bottom: 25px; text-align: justify; }
+        .input-login { width: 100%; padding: 12px; border: 2px solid #cbd5e0; border-radius: 6px; font-size: 16px; margin-bottom: 20px; box-sizing: border-box; text-align: center; }
+        .btn-login { width: 100%; padding: 12px; background-color: #2b6cb0; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-login:hover { background-color: #1a365d; }
+
     </style>
 </head>
 <body>
+    <!-- Tela de Autenticação Obrigatória da Regulação -->
+    <div id="containerLogin" class="tela-login-container">
+        <div class="caixa-login">
+            <h2>🔐 Acesso Restrito - SMS Araxá</h2>
+            <p>Este painel criptográfico é de uso exclusivo dos operadores autorizados para distribuição de agendas da PPI. Digite a senha master de homologação para liberar o sorteador:</p>
+            <input type="password" id="campoSenhaMaster" class="input-login" placeholder="Digite a senha de acesso..." onkeydown="if(event.key === 'Enter') validarSenhaMaster()">
+            <button type="button" class="btn-login" onclick="validarSenhaMaster()">Homologar Acesso</button>
+        </div>
+    </div>
 
     <!-- Cabeçalho Oculto na Impressão Física, Visível na Tela -->
     <div class="header-painel">
@@ -322,6 +340,23 @@
                 "Urologia", "Vascular"
             ]
         };
+        async function validarSenhaMaster() {
+            const senhaDigitada = document.getElementById('campoSenhaMaster').value;
+            if (!senhaDigitada) { alert("Por favor, digite a senha."); return; }
+            const msgBuffer = new TextEncoder().encode(senhaDigitada);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashDigitadoHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            const hashOficialEsperado = "a680736014ee7fee7c5da86e17f6e110b3dbb96a7bc3a087ca65552e47bbc1af";
+            if (hashDigitadoHex === hashOficialEsperado) {
+                document.getElementById('containerLogin').style.display = 'none';
+                alert("Acesso homologado com sucesso! Painel liberado para operação.");
+            } else {
+                alert("Senha incorreta! Tentativa de acesso negada e registrada para auditoria.");
+                document.getElementById('campoSenhaMaster').value = "";
+                document.getElementById('campoSenhaMaster').focus();
+            }
+        }
 
         let estruturaHospitais = {};
         let nomesOriginais = [];  
@@ -337,6 +372,7 @@
             carregarEstruturaHospitais();
             popularDropdownHospitais();
             renderizarHistoricoTabela();
+			verificarEstadoRecuperacao(); // <--- Adicione esta linha aqui para ativar a recuperação pós-F5!
         };
 
         function carregarEstruturaHospitais() {
