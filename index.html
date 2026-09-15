@@ -122,7 +122,8 @@
     <div class="print-visible-header">
         <h2>PREFEITURA MUNICIPAL DE ARAXÁ - MG</h2>
         <h3>SECRETARIA MUNICIPAL DE SAÚDE — SETOR DE REGULAÇÃO</h3>
-        <p><strong>Relatório Oficial de Distribuição de Consultas/Agendas - PPI 2026</strong></p>
+        <p><strong>Relatório Oficial de Distribuição vagas de Consultas/Agendas - PPI 2026</strong></p>
+		<p><strong>VAGAS CEDIDAS PELA MACRO - UBERABA</strong></p>
         <p id="printHospitalNome" style="font-weight: bold; margin-top: 5px; font-size: 14px;"></p>
         <hr style="border: 1px solid black;">
     </div>
@@ -239,28 +240,33 @@
     <br>
     <button type="button" class="btn-readme" onclick="abrirReadme()">ℹ️ Ver Instruções de Auditoria</button>
 
-
     <!-- Janela de Instruções (Modal Readme) -->
     <div id="modalReadme" class="modal-readme">
         <div class="modal-conteudo" style="text-align: justify;">
             <button type="button" class="btn-fechar-x" onclick="fecharReadme()">&times;</button>
-            <h2 style="text-align: center;">📋 Regulação Araxá - Como Funciona a Segurança</h2>
+            <h2 style="text-align: center;">📋 Regulação Araxá - Termos de Legitimação, Segurança e Transparência Pública</h2>
             
-            <p>Este painel distribui as vagas médicas para <strong>Araxá e Microrregião cedidas pela Macrorregião</strong> de forma transparente e imune a fraudes, seguindo as diretrizes oficiais da PPI:</p>
+            <p>Este painel eletrônico distribui as vagas médicas para <strong>Araxá e Microrregião cedidas pela Macrorregião de Uberaba</strong> de forma estritamente transparente, impessoal e imune a fraudes, em total conformidade com as diretrizes oficiais da PPI pactuadas entre os municípios.</p>
             
             <ul style="padding-left: 20px; text-align: justify;">
-                <li style="margin-bottom: 10px;"><strong>Como o Resultado é Gerado (Sorteio Neutro):</strong> O sistema funciona como um globo de bingo digital. Para escolher uma cidade sem favorecer ninguém, o computador capta os milissegundos exatos do relógio interno e os micro-ruídos elétricos do processador no milésimo de segundo em que o botão é clicado. O sistema usa esses números matemáticos infinitos e imprevisíveis para chacoalhar a lista de cidades e retirar apenas uma, de forma 100% neutra, justa e livre de qualquer interferência ou escolha humana.</li>
-                <li style="margin-bottom: 10px;"><strong>Bloqueio de Duplicidade em Ciclos:</strong> Cada cidade só pode ganhar uma única vaga por rodada. Quando a vaga é sorteada, a cidade sai da lista imediatamente. Se o total de vagas for maior que o número de cidades (passar de 8 vagas), o sistema encerra o primeiro ciclo com todas contempladas, coloca um aviso visual de "VAGAS EXTRAS" na tela, joga todas as 8 cidades de volta no globo e inicia um novo ciclo do zero, repetindo essa regra justa até preencher a última vaga definida.</li>
-                <li style="margin-bottom: 10px;"><strong>Lacre Digital (Hash SHA-256):</strong> Ao final do sorteio, o sistema gera uma assinatura digital única. Se alguém tentar alterar o resultado ou a ata depois da reunião, o código quebra e denuncia a fraude.</li>
-                <li style="margin-bottom: 10px;"><strong>Validação Externa:</strong> O operador pode copiar o resultado e colar em auditores independentes da internet ao vivo, provando a honestidade do cálculo.</li>
-                <li style="margin-bottom: 10px;"><strong>Protocolo de Queda de Energia ou Internet:</strong> Como o sistema opera de forma instantânea na memória temporária para garantir o sigilo, caso ocorra queda de energia elétrica ou interrupção técnica antes do encerramento oficial da rodada, o sorteio daquele hospital e especialidade corrente será **automaticamente desconsiderado e anulado**. Um novo sorteio idêntico será reiniciado do zero assim que o sistema for reestabelecido, garantindo a lisura do processo.</li>
-                <li style="margin-bottom: 10px;"><strong>Operação Oficial e Proteção de Dados:</strong> O painel é de uso restrito e operado exclusivamente pelos técnicos autorizados <strong>Júlio César e Heloísa</strong>. O sistema é totalmente blindado contra erros: cliques acidentais ou esbarrões no teclado não apagam, não travam e nem reiniciam o sorteio atual, garantindo total segurança durante a sessão ao vivo.</li>
+                <li style="margin-bottom: 12px;"><strong>Controle de Acesso Bi-Criptografado (Login Seguro):</strong> A porta de entrada do sistema é totalmente protegida contra acessos não autorizados. O painel exige uma senha mestre secreta que passa por um processo de trancamento eletrônico instantâneo. Isso impede que pessoas mal-intencionadas tentem burlar o sistema através do navegador, garantindo que apenas os operadores oficiais consigam carregar e operar a mesa de sorteios.</li>
+
+                <li style="margin-bottom: 12px;"><strong>Como o Resultado é Gerado (Imparcialidade Absoluta):</strong> O sistema opera como um globo de bingo digital de alta segurança. Para garantir que nenhuma cidade seja favorecida, o computador capta as variações elétricas microscópicas do chip processador e os milissegundos exatos do relógio interno no instante preciso do clique. O sistema utiliza esse cálculo matemático caótico e infinito para chacoalhar a lista e retirar apenas um município por vez. É um processo 100% neutro, livre de privilégios e imune a qualquer interferência ou escolha humana.</li>
+                
+                <li style="margin-bottom: 12px;"><strong>Bloqueio de Duplicidade em Ciclos Fechados:</strong> Para manter a equidade entre as cidades da microrregião, cada município só pode ocupar uma única vaga por rodada. Assim que uma cidade é sorteada, o sistema a retira fisicamente da lista daquele ciclo. Caso o total de vagas da especialidade seja maior que o número de cidades concorrentes (passar de 8 vagas), o painel encerra a primeira rodada com todas contempladas, emite um aviso visual de <strong>"⭐ REINÍCIO: VAGAS EXTRAS"</strong>, insere todos os municípios de volta no globo e inicia um novo ciclo justo do zero, repetindo a regra até preencher a última vaga.</li>
+                
+                <li style="margin-bottom: 12px;"><strong>Lacre Eletrônico Inviolável (Assinatura Digital Hash SHA-256):</strong> No exato milissegundo em que a última vaga é preenchida, o computador compacta todos os dados reais da sessão (Prestador, Especialidade, Vagas e a Ordem Exata das Cidades) e gera um código de autenticidade único com 64 letras e números. Esse código funciona como uma "impressão digital" da ata. Se qualquer pessoa tentar adulterar o resultado impresso, mudar uma letra ou inverter a ordem das cidades após a reunião, a assinatura digital quebrará imediatamente, denunciando a fraude.</li>
+                
+                <li style="margin-bottom: 12px;"><strong>Contraprova Técnico-Científica e Auditoria ao Vivo:</strong> Para provar a idoneidade do cálculo perante o Secretário Municipal de Saúde, a Subsecretária de Saúde, a Coordenadora da Regulação da SMS, os representantes de cada município da Microrregião de Araxá e todos os que se fizerem presentes nesta sessão pública, o operador pode clicar em <strong>"📋 Copiar Texto de Auditoria"</strong> e colar os dados salvos em sites de segurança independentes da internet ao vivo. O código gerado por esses sites externos baterá dígito por dígito com o exibido na tela de Araxá, chancelando a validade jurídica do processo.</li>
+                
+                <li style="margin-bottom: 12px;"><strong>Protocolo de Contingência (Queda de Energia ou Internet):</strong> Como o painel trabalha na memória temporária blindada para assegurar o sigilo, caso ocorra um apagão elétrico ou queda técnica antes do encerramento oficial da rodada, o sorteio daquele hospital e especialidade corrente será **automaticamente anulado e desconsiderado**. Um novo sorteio idêntico recomeçará do zero assim que o sistema foi reestabelecido, impedindo prejuízos ou vantagens indevidas a qualquer município.</li>
+                
+                <li style="margin-bottom: 12px;"><strong>Operação de Fé Pública e Proteção de Dados:</strong> O painel é de uso restrito e gerenciado exclusivamente pelos técnicos reguladores autorizados <strong>Júlio César e Heloísa</strong>. O sistema possui travas inteligentes de hardware: cliques por engano ou esbarrões acidentais no teclado (incluindo a tecla F5) são bloqueados e não apagam, não travam e nem reiniciam a sessão em andamento, garantindo total estabilidade na presença das autoridades.</li>
             </ul>
             
-            <button type="button" class="btn-fechar-modal" onclick="fecharReadme()">Entendido e Confirmado</button>
+            <button type="button" class="btn-fechar-modal" onclick="fecharReadme()">Entendido e Homologado</button>
         </div>
     </div>
-
 
     <!-- Janela de Grade Final Ampliada (Modal) -->
     <div id="modalGradeFinal" class="modal-readme">
@@ -340,23 +346,45 @@
                 "Urologia", "Vascular"
             ]
         };
+        // FUNÇÃO DE VALIDAÇÃO: Responsável por bloquear o sistema e conferir a senha criptografada
         async function validarSenhaMaster() {
+            // 1. Captura o texto que o operador digitou no campo de senha da tela
             const senhaDigitada = document.getElementById('campoSenhaMaster').value;
+            
+            // 2. Barreira de segurança simples: Se o campo estiver vazio, avisa o operador e interrompe a execução
             if (!senhaDigitada) { alert("Por favor, digite a senha."); return; }
+            
+            // 3. Converte o texto da senha digitada em um formato de bytes que o computador consegue processar
             const msgBuffer = new TextEncoder().encode(senhaDigitada);
+            
+            // 4. ALGORITMO CRIPTOGRÁFICO: Aplica o cálculo matemático puro do SHA-256 sobre os bytes da senha
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            
+            // 5. Converte o resultado bruto do cálculo em uma matriz (array) de números legíveis
             const hashArray = Array.from(new Uint8Array(hashBuffer));
+            
+            // 6. TRANSFORMAÇÃO EM HEXADECIMAL: Transforma a matriz de números em uma linha única de 64 caracteres
             const hashDigitadoHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            // 7. CHAVE DE CONFERÊNCIA: Este é o código hexadecimal oficial gerado de fábrica para a senha "Sorteio.ppi@2026"
             const hashOficialEsperado = "a680736014ee7fee7c5da86e17f6e110b3dbb96a7bc3a087ca65552e47bbc1af";
+            
+            // 8. CONTRA PROVA: Se a impressão digital da senha digitada for exatamente idêntica à de fábrica, libera o acesso
             if (hashDigitadoHex === hashOficialEsperado) {
+                // Remove a cortina azul escura da frente da tela, revelando o sorteador intacto
                 document.getElementById('containerLogin').style.display = 'none';
+                // Emite um alerta oficial confirmando a homologação jurídica do acesso
                 alert("Acesso homologado com sucesso! Painel liberado para operação.");
             } else {
+                // Se o código de 64 caracteres não bater, bloqueia a entrada e gera alerta de segurança
                 alert("Senha incorreta! Tentativa de acesso negada e registrada para auditoria.");
+                // Limpa a caixinha de texto para o operador tentar novamente
                 document.getElementById('campoSenhaMaster').value = "";
+                // Devolve a piscadinha do cursor para dentro do campo de digitação automaticamente
                 document.getElementById('campoSenhaMaster').focus();
             }
         }
+
 
         let estruturaHospitais = {};
         let nomesOriginais = [];  
@@ -558,7 +586,6 @@
 
         }
 
-		
 		function copiarTextoAuditoria() {
             const textoParaHash = `${hospitalAtual}|${especialidadeAtual}|${totalVagasDefinidas}|${nomesSorteados.join(',')}`;
             navigator.clipboard.writeText(textoParaHash).then(() => { alert("Texto de auditoria copiado! Dê CTRL+V no validador online."); }).catch(err => { alert("Erro: " + err); });
@@ -612,6 +639,9 @@
             btnNao.onclick = function() { divModal.remove(); };
             
             btnSim.onclick = function() {
+                // ENCAIXE 1: Salva o nome do hospital atual em uma caixinha de memória antes que a tela apague tudo
+                const hospitalSalvoAntesDoReinicio = hospitalAtual;
+
                 divModal.remove();
                 liberarInputsUIPosSorteio();
                 
@@ -630,10 +660,14 @@
                 if(document.getElementById('linksValidadores')) document.getElementById('linksValidadores').style.display = "none";
 
                 popularDropdownHospitais();
+
+                // ENCAIXE 2: Devolve o hospital salvo para a caixinha dropdown e atualiza as especialidades dele na mesma hora
+                if (hospitalSalvoAntesDoReinicio) {
+                    document.getElementById('selectHospital').value = hospitalSalvoAntesDoReinicio;
+                    atualizarDropdownEspecialidades();
+                }
             };
         }
-
-
 
         function liberarInputsUIPosSorteio() {
             document.getElementById('selectHospital').disabled = false; document.getElementById('selectEspecialidade').disabled = false;
@@ -696,7 +730,6 @@
             checkboxes.forEach((cb, index) => { cb.checked = masterCheckbox.checked; alternarSelecaoLinha(cb, index); });
         }
 
-
         function executarImpressaoOficial() {
             const filtroHospital = document.getElementById('selectFiltroHospital').value;
             const labelHospital = document.getElementById('printHospitalNome');
@@ -720,7 +753,6 @@
                 window.print();
             }, 150);
         }
-
 
         function limparBancoDados() {
             const divModal = document.createElement('div');
@@ -751,6 +783,7 @@
                 renderizarHistoricoTabela();
             };
         }
+			
         function exportarBancoLocal() {
             const dadosHospitais = localStorage.getItem('estruturaHospitaisPPI') || "{}";
             const dadosHistorico = localStorage.getItem('historicoPPI_v3') || "[]";
@@ -795,8 +828,6 @@
             leitor.readAsText(arquivo);
             input.value = ""; // Reseta o campo para permitir futuras importações
         }
-
-
 
         function abrirModalGerenciador() { 
             const selectAdmin = document.getElementById('selectHospitalAdmin'); selectAdmin.innerHTML = "";
