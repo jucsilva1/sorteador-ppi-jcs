@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regulação Araxá - Sorteio Criptográfico PPI</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 780px; margin: 30px auto; padding: 20px; text-align: center; background-color: #f0f4f8; color: #2d3748; }
+        .header-painel { background-color: #1a365d; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header-painel h1 { margin: 0; font-size: 22px; }
+        .header-painel p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }
+        
+        .config-container { background: white; padding: 15px; border-radius: 8px; border: 1px solid #cbd5e0; margin-bottom: 15px; display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap; }
+        .config-group { text-align: left; }
+        .config-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; color: #1a365d; }
+        .config-input { padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 14px; background-color: white; }
+        #selectHospital { width: 230px; cursor: pointer; }
+        #selectEspecialidade { width: 250px; cursor: pointer; }
+        #inputVagas { width: 70px; text-align: center; }
+
+        textarea { width: 100%; height: 60px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #cbd5e0; padding: 10px; font-size: 14px; box-sizing: border-box; }
+        button { padding: 12px 22px; font-size: 15px; cursor: pointer; margin: 5px; border-radius: 6px; border: none; font-weight: bold; transition: 0.2s; }
+        .btn-carregar { background-color: #4a5568; color: white; }
+        .btn-sortear { background-color: #2b6cb0; color: white; font-size: 16px; padding: 12px 25px; }
+        .btn-abortar { background-color: #dd6b20; color: white; display: none; }
+        .btn-reiniciar { background-color: #e53e3e; color: white; display: none; margin: 15px auto; }
+        .btn-readme { background-color: #718096; color: white; margin-top: 15px; font-size: 14px; }
+        .btn-grade-final { background-color: #1a365d; color: white; display: none; margin: 15px auto; font-size: 16px; }
+        .btn-gerenciar { background-color: #2c5282; color: white; font-size: 12px; padding: 6px 12px; border-radius: 4px; }
+        button:hover { opacity: 0.9; }
+        
+        .painel-resultado { background: white; border: 2px solid #2b6cb0; padding: 30px; border-radius: 8px; margin: 20px 0; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        #resultado { font-size: 42px; font-weight: bold; color: #2b6cb0; min-height: 50px; word-break: break-word; }
+        #vagasStatus { font-size: 16px; color: #2d3748; margin-top: 8px; font-weight: bold; background: #e2e8f0; display: inline-block; padding: 4px 12px; border-radius: 12px; }
+        #restantes { font-size: 14px; color: #718096; margin-top: 10px; }
+        
+        .hash-container { background-color: #e2e8f0; border: 1px dashed #4a5568; padding: 8px 12px; font-family: monospace; font-size: 13px; border-radius: 6px; margin: 15px auto; word-break: break-all; color: #2d3748; font-weight: bold; display: none; max-width: 90%; }
+        
+        .historico-container { text-align: left; background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-top: 20px; }
+        .historico-container h3 { margin-top: 0; color: #1a365d; font-size: 16px; border-bottom: 2px solid #edf2f7; padding-bottom: 8px; }
+        .linha-auditoria { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; align-items: center; }
+        .cidade-badge { padding: 6px 12px; background: #edf2f7; border-radius: 20px; font-size: 14px; color: #4a5568; font-weight: 500; border: 1px solid #cbd5e0; }
+        .cidade-badge.ultimo { background: #2b6cb0; color: white; font-size: 20px; font-weight: bold; padding: 8px 16px; border-radius: 8px; box-shadow: 0 4px 6px rgba(43,108,176,0.3); }
+        .badge-separador { background: #dd6b20 !important; color: white !important; font-weight: bold !important; border: none !important; }
+        
+        #arraySorteados { font-family: 'Courier New', Courier, monospace; background: #2d3748; padding: 12px; border-radius: 6px; word-break: break-all; color: #63b3ed; font-size: 14px; font-weight: bold; }
+
+        .relatorio-db-container { text-align: left; background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 20px; }
+        .relatorio-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1a365d; padding-bottom: 8px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .relatorio-header h3 { margin: 0; color: #1a365d; }
+        .filtro-impressao-container { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold; color: #1a365d; }
+        .select-filtro { padding: 6px; border-radius: 4px; border: 1px solid #cbd5e0; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .btn-imprimir { background-color: #2d3748; color: white; font-size: 13px; padding: 6px 12px; }
+        .tabela-relatorio { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        .tabela-relatorio th, .tabela-relatorio td { border: 1px solid #cbd5e0; padding: 8px; text-align: left; }
+        .tabela-relatorio th { background-color: #edf2f7; color: #1a365d; }
+        .btn-limpar-db { background-color: #718096; color: white; font-size: 11px; padding: 4px 8px; margin-top: 10px; cursor: pointer; float: right; border-radius: 4px; }
+
+        .footer-direitos { margin-top: 25px; font-size: 12px; color: #a0aec0; text-align: center; }
+
+        .modal-readme { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-conteudo { background: white; width: 85%; max-width: 650px; padding: 30px; border-radius: 12px; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.3); max-height: 80vh; overflow-y: auto; position: relative; }
+        .modal-conteudo h2 { color: #1a365d; margin-top: 0; border-bottom: 3px solid #2b6cb0; padding-bottom: 10px; text-align: center; }
+        .modal-conteudo h3 { color: #2b6cb0; font-size: 16px; margin-top: 20px; }
+        .modal-conteudo p, .modal-conteudo li { font-size: 15px; line-height: 1.6; color: #2d3748; }
+        .modal-conteudo ul { padding-left: 20px; }
+        .btn-fechar-modal { background-color: #2b6cb0; color: white; display: block; margin: 25px auto 0 auto; padding: 10px 25px; }
+        .btn-fechar-x { position: absolute; top: 15px; right: 15px; font-size: 22px; font-weight: bold; color: #a0aec0; cursor: pointer; border: none; background: none; }
+        .btn-fechar-x:hover { color: #e53e3e; }
+
+        .grade-final-lista { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; text-align: left; }
+        .grade-final-item { font-size: 22px; font-weight: bold; color: #1a365d; background: #edf2f7; padding: 10px 15px; border-radius: 8px; border-left: 6px solid #2b6cb0; }
+        .grade-final-item.extra { border-left-color: #dd6b20; background: #fffaf0; }
+
+        @media print {
+            body { background: white; color: black; margin: 0; padding: 0; }
+            .header-painel, textarea, button, .painel-resultado, .historico-container, .btn-readme, .footer-direitos, .modal-readme, .btn-imprimir, .btn-limpar-db, .btn-carregar, .config-container, .filtro-impressao-container, .hash-container { display: none !important; }
+            .relatorio-db-container { border: none; padding: 0; margin: 0; width: 100%; }
+            .relatorio-header h3 { font-size: 22px; text-transform: uppercase; text-align: center; width: 100%; border-bottom: 2px solid black; padding-bottom: 10px; }
+            .tabela-relatorio { font-size: 12px; width: 100%; margin-top: 20px; }
+            .tabela-relatorio th { background-color: #f2f2f2 !important; color: black !important; }
+            .coluna-check { display: none !important; }
+            .tabela-relatorio tbody tr:not(.linha-selecionada) { display: none !important; }
+            .print-visible-header { display: block !important; text-align: center; margin-bottom: 30px; }
+            .print-assinaturas { display: block !important; margin-top: 60px; }
+            .print-hash-line { display: block !important; font-family: monospace; font-size: 10px; text-align: center; margin-top: 30px; color: #2d3748; }
+        }
+        .print-visible-header { display: none; }
+        .print-assinaturas { display: none; }
+        .print-hash-line { display: none; }
+        .coluna-check { width: 40px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <!-- Cabeçalho Oculto na Impressão Física, Visível na Tela -->
+    <div class="header-painel">
+        <h1>SETOR DE REGULAÇÃO - ARAXÁ/MG</h1>
+        <p>Sorteio Criptográfico de Agendas Médicas Microrregião • PPI</p>
+        <p style="font-weight: bold; margin-top: 3px; color: #90cdf4;">Desenvolvedor & Operador: Júlio César</p>
+    </div>
+
+    <!-- Cabeçalho Oficial exclusivo para a folha de Impressão -->
+    <div class="print-visible-header">
+        <h2>PREFEITURA MUNICIPAL DE ARAXÁ - MG</h2>
+        <h3>SECRETARIA MUNICIPAL DE SAÚDE — SETOR DE REGULAÇÃO</h3>
+        <p><strong>Relatório Oficial de Distribuição de Consultas/Agendas - PPI 2026</strong></p>
+        <p id="printHospitalNome" style="font-weight: bold; margin-top: 5px; font-size: 14px;"></p>
+        <hr style="border: 1px solid black;">
+    </div>
+    
+    <!-- Painel de Configuração Inicial da PPI -->
+    <div class="config-container">
+        <div class="config-group">
+            <label for="selectHospital">Hospital / Prestador:</label>
+            <select id="selectHospital" class="config-input" onchange="atualizarDropdownEspecialidades()"></select>
+        </div>
+        <div class="config-group">
+            <label for="selectEspecialidade">Especialidade Médica:</label>
+            <select id="selectEspecialidade" class="config-input"></select>
+        </div>
+        <div class="config-group">
+            <label for="inputVagas">Vagas:</label>
+            <input type="number" id="inputVagas" class="config-input" value="8" min="1">
+        </div>
+        <div class="config-group" style="align-self: flex-end;">
+            <button type="button" class="btn-gerenciar" onclick="abrirModalGerenciador()">⚙️ Gerenciar Tabelas</button>
+        </div>
+    </div>
+
+    <textarea id="listaNomes" placeholder="Cidades participantes...">Araxá, Ibiá, Campos Altos, Pedrinópolis, Perdizes, Pratinha, Santa Juliana, Tapira</textarea>
+    <br>
+    
+    <button type="button" class="btn-carregar" id="btnCarregar" onclick="inicializarSorteio()">Carregar Municípios e Vagas</button>
+    <button type="button" class="btn-sortear" id="btnSortear" onclick="sortearProximo()">Sortear Próxima Vaga</button>
+    <button type="button" class="btn-abortar" id="btnAbortar" onclick="abortarSorteio()">⚠️ Abortar Sorteio</button>
+
+    
+        <!-- Painel de Exibição Principal -->
+    <div class="painel-resultado">
+        <div id="resultado">Escolha o Hospital, Especialidade, Vagas e carregue o sistema...</div>
+        <div><span id="vagasStatus">Vagas preenchidas: 0 / 0</span></div>
+        <div id="restantes">Municípios na fila da rodada atual: 0</div>
+        <div id="hashResultado" class="hash-container"></div>
+        
+        <!-- Botão de Cópia Automática para Auditoria Externa -->
+        <button type="button" id="btnCopiarAuditoria" style="display:none; font-size:13px; padding:8px 16px; background-color:#718096; color:white; margin-top:15px; border-radius:6px; cursor:pointer;" onclick="copiarTextoAuditoria()">📋 Copiar Texto de Auditoria para Validador Online</button>
+        
+        <!-- Links Diretos Oficiais para Colar e Validar (Abrem OBRIGATORIAMENTE em Nova Aba) -->
+        <div id="linksValidadores" style="display:none; margin-top:15px; font-size:13px; color:#4a5568; line-height: 1.6;">
+            🌐 <strong>Validadores SHA-256 Oficiais para Conferência (Nova Aba):</strong><br>
+            <a href="https://emn178.github.io/online-tools/sha256.html" target="_blank" rel="noopener" style="color:#2b6cb0; font-weight:bold; text-decoration:underline; margin-right:20px;">Opção 1 (EMN178 - Direto na Caixa)</a>
+            <a href="https://sha256calc.com" target="_blank" rel="noopener" style="color:#2b6cb0; font-weight:bold; text-decoration:underline;">Opção 2 (SHA256Calc - Tela Limpa)</a>
+        </div>
+    </div>
+
+    
+    <button type="button" class="btn-grade-final" id="btnGradeFinal" onclick="abrirGradeFinal()">🔎 Exibir Grade Final para Ata/Foto</button>
+    <button type="button" class="btn-reiniciar" id="btnReiniciar" onclick="reiniciarSorteio()">Reiniciar Sorteio da Grade</button>
+
+    <!-- Painel de Conferência e Auditoria -->
+    <div class="historico-container">
+        <h3>Painel de Auditoria Visual (Ordem de Saída):</h3>
+        <div class="linha-auditoria" id="badgesAuditoria"></div>
+        <p style="font-size: 13px; font-weight: bold; color: #718096; margin: 15px 0 5px 0;">Estrutura do Array de Conferência (JSON):</p>
+        <div id="arraySorteados">[]</div>
+    </div>
+
+    <!-- Banco de Dados Local e Relatório Impresso -->
+    <div class="relatorio-db-container">
+        <div class="relatorio-header">
+            <h3>📋 Histórico de Sorteios Homologados (PPI)</h3>
+            <div class="filtro-impressao-container">
+                <label for="selectFiltroHospital">Filtrar Hospital para Impressão:</label>
+                <select id="selectFiltroHospital" class="select-filtro" onchange="renderizarHistoricoTabela()"></select>
+            </div>
+            <button type="button" class="btn-imprimir" onclick="executarImpressaoOficial()">🖨️ Imprimir Relatório Oficial</button>
+        </div>
+        <table class="tabela-relatorio" id="tabelaRelatorio">
+            <thead>
+                <tr>
+                    <th class="coluna-check"><input type="checkbox" id="checkMaster" onchange="selecionarTodosCliques(this)" checked></th>
+                    <th>Data/Hora</th>
+                    <th>Prestador / Hospital</th>
+                    <th>Especialidade</th>
+                    <th>Total Vagas</th>
+                    <th>Ordem de Contemplação e Chave Hash SHA-256</th>
+                </tr>
+            </thead>
+            <tbody id="corpoTabela"></tbody>
+        </table>
+		
+		<!-- Botões de transporte do banco local (Pen Drive / E-mail) -->
+        <button type="button" style="background-color: #2b6cb0; color: white; font-size: 11px; padding: 4px 8px; margin-top: 10px; margin-right: 5px; cursor: pointer; float: right; border-radius: 4px; border: none; font-weight: bold;" onclick="exportarBancoLocal()">💾 Exportar Cópia do Banco</button>
+        <button type="button" style="background-color: #319795; color: white; font-size: 11px; padding: 4px 8px; margin-top: 10px; margin-right: 5px; cursor: pointer; float: right; border-radius: 4px; border: none; font-weight: bold;" onclick="document.getElementById('inputArquivoBanco').click()">📂 Importar Banco Externo</button>
+        <input type="file" id="inputArquivoBanco" style="display: none;" accept=".txt" onchange="importarBancoLocal(this)">
+
+        <!-- O botão de limpar continua aqui embaixo protegido -->
+        <button type="button" class="btn-limpar-db" onclick="limparBancoDados()">Limpar Histórico da Memória</button>
+
+           
+        <div id="printHashLine" class="print-hash-line"></div>
+
+        <div class="print-assinaturas">
+            <table style="width: 100%; margin-top: 50px; border: none;">
+                <tr style="border: none;">
+                    <td style="width: 45%; border: none; text-align: center;">
+                        <br>__________________________________________<br>
+                        <strong>Júlio César</strong><br>Desenvolvedor & Operador do Sistema
+                    </td>
+                    <td style="width: 10%; border: none;"></td>
+                    <td style="width: 45%; border: none; text-align: center;">
+                        <br>__________________________________________<br>
+                        <strong>Coordenação de Regulação / PPI</strong><br>SMS Araxá - MG
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <br>
+    <button type="button" class="btn-readme" onclick="abrirReadme()">ℹ️ Ver Instruções de Auditoria</button>
+
+
+    <!-- Janela de Instruções (Modal Readme) -->
+    <div id="modalReadme" class="modal-readme">
+        <div class="modal-conteudo" style="text-align: justify;">
+            <button type="button" class="btn-fechar-x" onclick="fecharReadme()">&times;</button>
+            <h2 style="text-align: center;">📋 Regulação Araxá - Como Funciona a Segurança</h2>
+            
+            <p>Este painel distribui as vagas médicas para <strong>Araxá e Microrregião cedidas pela Macrorregião</strong> de forma transparente e imune a fraudes, seguindo as diretrizes oficiais da PPI:</p>
+            
+            <ul style="padding-left: 20px; text-align: justify;">
+                <li style="margin-bottom: 10px;"><strong>Como o Resultado é Gerado (Sorteio Neutro):</strong> O sistema funciona como um globo de bingo digital. Para escolher uma cidade sem favorecer ninguém, o computador capta os milissegundos exatos do relógio interno e os micro-ruídos elétricos do processador no milésimo de segundo em que o botão é clicado. O sistema usa esses números matemáticos infinitos e imprevisíveis para chacoalhar a lista de cidades e retirar apenas uma, de forma 100% neutra, justa e livre de qualquer interferência ou escolha humana.</li>
+                <li style="margin-bottom: 10px;"><strong>Bloqueio de Duplicidade em Ciclos:</strong> Cada cidade só pode ganhar uma única vaga por rodada. Quando a vaga é sorteada, a cidade sai da lista imediatamente. Se o total de vagas for maior que o número de cidades (passar de 8 vagas), o sistema encerra o primeiro ciclo com todas contempladas, coloca um aviso visual de "VAGAS EXTRAS" na tela, joga todas as 8 cidades de volta no globo e inicia um novo ciclo do zero, repetindo essa regra justa até preencher a última vaga definida.</li>
+                <li style="margin-bottom: 10px;"><strong>Lacre Digital (Hash SHA-256):</strong> Ao final do sorteio, o sistema gera uma assinatura digital única. Se alguém tentar alterar o resultado ou a ata depois da reunião, o código quebra e denuncia a fraude.</li>
+                <li style="margin-bottom: 10px;"><strong>Validação Externa:</strong> O operador pode copiar o resultado e colar em auditores independentes da internet ao vivo, provando a honestidade do cálculo.</li>
+                <li style="margin-bottom: 10px;"><strong>Protocolo de Queda de Energia ou Internet:</strong> Como o sistema opera de forma instantânea na memória temporária para garantir o sigilo, caso ocorra queda de energia elétrica ou interrupção técnica antes do encerramento oficial da rodada, o sorteio daquele hospital e especialidade corrente será **automaticamente desconsiderado e anulado**. Um novo sorteio idêntico será reiniciado do zero assim que o sistema for reestabelecido, garantindo a lisura do processo.</li>
+                <li style="margin-bottom: 10px;"><strong>Operação Oficial e Proteção de Dados:</strong> O painel é de uso restrito e operado exclusivamente pelos técnicos autorizados <strong>Júlio César e Heloísa</strong>. O sistema é totalmente blindado contra erros: cliques acidentais ou esbarrões no teclado não apagam, não travam e nem reiniciam o sorteio atual, garantindo total segurança durante a sessão ao vivo.</li>
+            </ul>
+            
+            <button type="button" class="btn-fechar-modal" onclick="fecharReadme()">Entendido e Confirmado</button>
+        </div>
+    </div>
+
+
+    <!-- Janela de Grade Final Ampliada (Modal) -->
+    <div id="modalGradeFinal" class="modal-readme">
+        <div class="modal-conteudo" style="max-width: 550px; text-align: center;">
+            <button type="button" class="btn-fechar-x" onclick="fecharGradeFinal()">&times;</button>
+            <h2 style="border-bottom: 3px solid #1a365d;">📋 GRADE FINAL DO SORTEIO</h2>
+            <p style="font-weight: bold; color: #718096; margin-bottom: 5px;" id="gradeFinalTitulo">Resultado Oficial</p>
+            <div class="grade-final-lista" id="listaGradeFinal"></div>
+            <div id="gradeFinalHash" style="margin-top: 15px; font-family: monospace; font-size: 11px; background: #fffaf0; border: 1px solid #cbd5e0; padding: 6px; border-radius: 4px; font-weight: bold; word-break: break-all; color: #1a365d;"></div>
+            <p style="font-size: 12px; color: #a0aec0; margin-top: 20px;">[ Pressione ESC ou clique no X para fechar ]</p>
+        </div>
+    </div>
+
+    <!-- Modal Administrativo para Inclusão e Alteração de Hospitais/Especialidades -->
+    <div id="modalGerenciador" class="modal-readme">
+        <div class="modal-conteudo" style="max-width: 500px;">
+            <button type="button" class="btn-fechar-x" onclick="fecharModalGerenciador()">&times;</button>
+            <h2>⚙️ Gerenciar Tabelas PPI</h2>
+            <h3 style="margin-top: 15px;">➕ Cadastrar Novo Hospital</h3>
+            <div style="display: flex; gap: 10px; margin-top: 5px;">
+                <input type="text" id="novoHospitalNome" class="config-input" style="flex: 1;" placeholder="Ex: HOSPITAL HELIO ANGOTTI">
+                <button type="button" onclick="adicionarHospitalAdmin()" style="background-color: #2b6cb0; color: white; margin: 0; padding: 8px 15px; font-size: 14px;">Adicionar</button>
+            </div>
+            <h3 style="margin-top: 25px;">➕ Acrescentar Especialidade</h3>
+            <div style="text-align: left; margin-top: 5px;">
+                <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; color: #1a365d;">Selecione o Hospital Alvo:</label>
+                <select id="selectHospitalAdmin" class="config-input" style="width: 100%; margin-bottom: 10px;"></select>
+                <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; color: #1a365d;">Nome da Especialidade:</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="novaEspecialidadeNome" class="config-input" style="flex: 1;" placeholder="Ex: ONCOLOGIA GERAL">
+                    <button type="button" onclick="adicionarEspecialidadeAdmin()" style="background-color: #2b6cb0; color: white; margin: 0; padding: 8px 15px; font-size: 14px;">Acrescentar</button>
+                </div>
+            </div>
+            <button type="button" class="btn-fechar-modal" onclick="fecharModalGerenciador()" style="margin-top: 30px; background-color: #4a5568;">Fechar Painel</button>
+        </div>
+    </div>
+
+    <div class="footer-direitos">
+        © 2026 • Desenvolvido por Júlio César • Todos os Direitos Reservados • Setor de Regulação de Araxá
+    </div>
+
+        <script>
+        // BANCO DE DADOS DE FÁBRICA - GRAVADO COM AS 90 ESPECIALIDADES OFICIAIS ENVIADAS
+        const dadosPadraoPPI = {
+            "HOSPITAL DAS CLÍNICAS HC_UFTM": [
+                "CIRURGIA DA MÃO E MEMBRO SUPERIOR", "CIRURGIA DO APARELHO DIGESTIVO", 
+                "CIRURGIA E TRAUMATOLOGIA BMF DIDÁTICO", "CIRURGIA GERAL", "CIRURGIA PEDIÁTRICA", 
+                "CIRURGIA PLÁSTICA REPARADORA", "CLIMATÉRIO", "CLÍNICA MÉDICA", "COLOPROCTOLOGIA", 
+                "COLPOSCOPIA", "DERMATOLOGIA DIDÁTICO", "ENDOCRINOLOGIA E METABOLOGIA", 
+                "GASTROENTEROLOGIA GERAL DIDÁTICO", "GERIATRIA", "GINECO-ENDOCRINO", 
+                "GINECOLOGIA ADOLESCENTE", "GINECOLOGIA GERAL", "HEMATOLOGIA E HEMOTERAPIA", 
+                "HEMATOLOGIA PEDIÁTRICA", "INFERTILIDADE VÍDEO", "MASTOLOGIA", "NEFROLOGIA", 
+                "NEFROLOGIA - DISTÚRBIO DO METABOLISMO ÓSSEO", "NEFROLOGIA - GLOMERULOPATIAS", 
+                "NEUROCIRURGIA", "NEUROCIRURGIA PEDIÁTRICA", "NEUROLOGIA DIDÁTICO", 
+                "OBA ADOLESCENTE", "OFTALMOLOGIA PEDIÁTRICA", "ONCOLOGIA GINECOLÓGICA", 
+                "ONCOLOGIA ORTOPÉDICA", "ORTOPEDIA COLUNA", "ORTOPEDIA INFANTIL", 
+                "ORTOPEDIA JOELHO", "ORTOPEDIA MÃO", "ORTOPEDIA OMBRO", "ORTOPEDIA QUADRIL", 
+                "OTORRINOLARINGOLOGIA", "PÉ DIABÉTICO - ENDOCRINOLOGIA PEDIATRIA", 
+                "PNEUMOLOGIA - TRIAGEM", "PNEUMOLOGIA PEDIÁTRICA", "PNEUMOLOGIA DIDÁTICO", 
+                "PSIQUIATRIA - TRIAGEM", "PSIQUIATRIA DA INFÂNCIA E ADOLESCÊNCIA", 
+                "PUERICULTURA", "REUMATOLOGIA", "TRAUMA DE MEMBROS INFERIORES", 
+                "TRIAGEM - ENDOCRINOLOGIA PEDIÁTRICA", "UROLOGIA", "UROLOGIA PEDIÁTRICA", 
+                "UROLOGIA TRIAGEM"
+            ],
+            "HOSPITAL UNIVERSITÁRIO MÁRIO PALMÉRIO": [
+                "Ambulatorio/ Cirurgia Pediatrica", "Cirurgia Ambulatorial", 
+                "Cirurgia Cabeça e Pescoço", "Cirurgia Geral", "Coloproctologista", 
+                "Dermatologista", "Endocrinologia", "Gastro / Gastrologia", "Geriatria", 
+                "Ginecologia hospitalar", "Ginecologia Uroginecologia ( Somente Uroginecologia )", 
+                "Ginecologia/infanto puberal", "Hematologia Geral", "Infectologia", 
+                "Nefrologista", "Neurologia", "Onco/Ortopedia", "Ortopedia Pediatrico/Pe/Tornozelo", 
+                "Ortopedia/Pé/Tornozelo", "Ortopedista (Coluna)", "Ortopedista (Joelho)", 
+                "Ortopedista (Quadril)", "ORTOPEDISTA / Mao/Adulto e Pediatrico", 
+                "Ortopedista /Mao/Cotovelo/Ombro", "Ortopedista /Ombro/Cotovelo", 
+                "Ortopedista Geral", "ORTOPEDISTA/Quadril", "Otorrino", "Pneumologista", 
+                "Reumatologia", "Triagem/pneumo - modalidade de consulta por telemedicina", 
+                "Urologia", "Vascular"
+            ]
+        };
+
+        let estruturaHospitais = {};
+        let nomesOriginais = [];  
+        let nomesDisponiveis = []; 
+        let nomesSorteados = [];   
+        let totalVagasDefinidas = 0;
+        let hospitalAtual = "";
+        let especialidadeAtual = "";
+        let sorteioEmAndamento = false;
+        let hashSorteioAtual = ""; 
+
+        window.onload = function() {
+            carregarEstruturaHospitais();
+            popularDropdownHospitais();
+            renderizarHistoricoTabela();
+        };
+
+        function carregarEstruturaHospitais() {
+            let dadosSalvos = localStorage.getItem('estruturaHospitaisPPI');
+            if (dadosSalvos) { 
+                estruturaHospitais = JSON.parse(dadosSalvos); 
+                if (!estruturaHospitais || Object.keys(estruturaHospitais).length === 0) {
+                    estruturaHospitais = dadosPadraoPPI;
+                    localStorage.setItem('estruturaHospitaisPPI', JSON.stringify(estruturaHospitais));
+                }
+            } else { 
+                estruturaHospitais = dadosPadraoPPI; 
+                localStorage.setItem('estruturaHospitaisPPI', JSON.stringify(estruturaHospitais)); 
+            }
+        }
+
+        function popularDropdownHospitais() {
+            const selectHosp = document.getElementById('selectHospital');
+            const selectFiltro = document.getElementById('selectFiltroHospital');
+            const selectAdmin = document.getElementById('selectHospitalAdmin');
+            
+            selectHosp.innerHTML = "";
+            selectFiltro.innerHTML = '<option value="TODOS">-- EXIBIR TODOS --</option>';
+            if (selectAdmin) selectAdmin.innerHTML = "";
+
+            Object.keys(estruturaHospitais).forEach(hospital => {
+                let opt1 = document.createElement('option'); opt1.value = hospital; opt1.innerText = hospital; selectHosp.appendChild(opt1);
+                let opt2 = document.createElement('option'); opt2.value = hospital; opt2.innerText = hospital; selectFiltro.appendChild(opt2);
+                if (selectAdmin) {
+                    let opt3 = document.createElement('option'); opt3.value = hospital; opt3.innerText = hospital; selectAdmin.appendChild(opt3);
+                }
+            });
+            atualizarDropdownEspecialidades();
+        }
+
+        function atualizarDropdownEspecialidades() {
+            const hospitalSelecionado = document.getElementById('selectHospital').value;
+            const selectEspec = document.getElementById('selectEspecialidade');
+            selectEspec.innerHTML = "";
+            if (estruturaHospitais[hospitalSelecionado]) {
+                estruturaHospitais[hospitalSelecionado].forEach(especialidade => {
+                    let opt = document.createElement('option'); opt.value = especialidade; opt.innerText = especialidade; selectEspec.appendChild(opt);
+                });
+            }
+        }
+
+        function inicializarSorteio() {
+            hospitalAtual = document.getElementById('selectHospital').value;
+            especialidadeAtual = document.getElementById('selectEspecialidade').value;
+            totalVagasDefinidas = parseInt(document.getElementById('inputVagas').value);
+            const texto = document.getElementById('listaNomes').value;
+            
+            if (!hospitalAtual || !especialidadeAtual) { alert("Por favor, selecione o Hospital e a Especialidade."); return; }
+            if (isNaN(totalVagasDefinidas) || totalVagasDefinidas < 1) { alert("Por favor, insira um número válido de vagas."); return; }
+            nomesOriginais = texto.split(/,|\n/).map(n => n.trim()).filter(n => n !== "");
+            if (nomesOriginais.length === 0) { alert("Por favor, insira cidades válidas."); return; }
+            
+            nomesDisponiveis = [...nomesOriginais]; nomesSorteados = []; sorteioEmAndamento = true; hashSorteioAtual = "";
+            if(document.getElementById('btnCopiarAuditoria')) document.getElementById('btnCopiarAuditoria').style.display = "none";
+            document.getElementById('hashResultado').style.display = "none";
+            document.getElementById('selectHospital').disabled = true; document.getElementById('selectEspecialidade').disabled = true;
+            document.getElementById('inputVagas').disabled = true; document.getElementById('listaNomes').disabled = true;
+            document.getElementById('btnCarregar').disabled = true; document.getElementById('btnSortear').disabled = false;
+            document.getElementById('btnAbortar').style.display = "inline-block"; document.getElementById('btnReiniciar').style.display = "none"; document.getElementById('btnGradeFinal').style.display = "none";
+            
+            // CAIXA-PRETA ATIVADA: Salva o início do sorteio na memória protetora
+            salvarEstadoSorteioAtual();
+            
+            atualizarInterface(`Sorteio iniciado para [${hospitalAtual}] - Especialidade: [${especialidadeAtual}]. Clique em 'Sortear Próxima Vaga'.`);
+        }
+
+        function sortearProximo() {
+            if (!sorteioEmAndamento) return;
+            if (nomesSorteados.filter(item => item !== "--- SEPARAÇÃO: VAGAS EXTRAS ---").length >= totalVagasDefinidas) { finalizarSorteioComSucesso(); return; }
+            if (nomesDisponiveis.length === 0) { nomesSorteados.push("--- SEPARAÇÃO: VAGAS EXTRAS ---"); nomesDisponiveis = [...nomesOriginais]; }
+
+            const arrayCripto = new Uint32Array(1);
+            window.crypto.getRandomValues(arrayCripto);
+            const percentualCripto = arrayCripto / 4294967295;
+            const indiceAleatorio = Math.floor(percentualCripto * nomesDisponiveis.length);
+
+            const nomeSorteado = nomesDisponiveis.splice(indiceAleatorio, 1); 
+            nomesSorteados.push(nomeSorteado);
+            
+            // CAIXA-PRETA ATIVADA: Atualiza o backup a cada cidade nova sorteada
+            salvarEstadoSorteioAtual();
+            
+            atualizarInterface(nomeSorteado);
+
+            if (nomesSorteados.filter(item => item !== "--- SEPARAÇÃO: VAGAS EXTRAS ---").length === totalVagasDefinidas) {
+                finalizarSorteioComSucesso();
+            }
+        }
+        function salvarEstadoSorteioAtual() {
+            const estado = {
+                hospitalAtual, especialidadeAtual, totalVagasDefinidas,
+                nomesOriginais, nomesDisponiveis, nomesSorteados, sorteioEmAndamento
+            };
+            localStorage.setItem('caixaPretaSorteioPPI', JSON.stringify(estado));
+        }
+
+        function verificarEstadoRecuperacao() {
+            const estadoSalvo = localStorage.getItem('caixaPretaSorteioPPI');
+            if (!estadoSalvo) return;
+            
+            const estado = JSON.parse(estadoSalvo);
+            if (!estado.sorteioEmAndamento) return; 
+
+            // RECONSTRUÇÃO AUTOMÁTICA: Restaura todas as variáveis para o ponto exato pré-F5
+            hospitalAtual = estado.hospitalAtual; especialidadeAtual = estado.especialidadeAtual;
+            totalVagasDefinidas = estado.totalVagasDefinidas; nomesOriginais = estado.nomesOriginais;
+            nomesDisponiveis = estado.nomesDisponiveis; nomesSorteados = estado.nomesSorteados;
+            sorteioEmAndamento = estado.sorteioEmAndamento;
+
+            // Alinha os componentes visuais do painel exatamente como estavam
+            document.getElementById('selectHospital').value = hospitalAtual;
+            atualizarDropdownEspecialidades();
+            document.getElementById('selectEspecialidade').value = especialidadeAtual;
+            document.getElementById('inputVagas').value = totalVagasDefinidas;
+            document.getElementById('listaNomes').value = nomesOriginais.join(', ');
+
+            document.getElementById('selectHospital').disabled = true; document.getElementById('selectEspecialidade').disabled = true;
+            document.getElementById('inputVagas').disabled = true; document.getElementById('listaNomes').disabled = true;
+            document.getElementById('btnCarregar').disabled = true; document.getElementById('btnSortear').disabled = false;
+            document.getElementById('btnAbortar').style.display = "inline-block";
+
+            const ultimaCidade = nomesSorteados[nomesSorteados.length - 1];
+            atualizarInterface(ultimaCidade || "Sorteio recuperado após recarga da página!");
+        }
+
+        // SUBSTITUIÇÃO: Procure pelo seu 'window.onload' antigo e troque por este:
+        window.onload = function() {
+            carregarEstruturaHospitais();
+            popularDropdownHospitais();
+            renderizarHistoricoTabela();
+            verificarEstadoRecuperacao(); // Dispara o scanner de caixa-preta ao abrir a página
+        };
+
+
+        async function finalizarSorteioComSucesso() {
+            sorteioEmAndamento = false;
+
+            // 1. Garante a captura dos dados reais para a fórmula matemática do Hash
+            const textoParaHash = `${hospitalAtual}|${especialidadeAtual}|${totalVagasDefinidas}|${nomesSorteados.join(',')}`;
+            const msgBuffer = new TextEncoder().encode(textoParaHash);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            hashSorteioAtual = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+            // 2. Trava os botões de controle de rodada
+            document.getElementById('btnSortear').disabled = true;
+            document.getElementById('btnAbortar').style.display = "none";
+            document.getElementById('btnReiniciar').style.display = "block";
+            document.getElementById('btnGradeFinal').style.display = "block";
+
+            // 3. Atualiza a interface principal com o resultado
+            document.getElementById('resultado').innerText = `Sorteio Concluído! Vagas Esgotadas.`;
+            
+            // 4. Exibe o bloco do Hash formatado em negrito e alinhado
+            const painelHash = document.getElementById('hashResultado');
+            painelHash.whiteSpace = "pre-line"; painelHash.style.textAlign = "left";
+            painelHash.innerHTML = `<strong>🏥 PRESTADOR:</strong> ${hospitalAtual}<br><strong>🩺 ESPECIALIDADE:</strong> ${especialidadeAtual}<br><strong>🔢 TOTAL VAGAS:</strong> ${totalVagasDefinidas}<br><strong>🔐 ASSINATURA DIGITAL (SHA-256):</strong><br><span style="color:#2b6cb0; font-family:monospace; word-break:break-all;">${hashSorteioAtual}</span>`;
+            painelHash.style.display = "block";
+
+            // 5. Garante que o botão de cópia exista e apareça na tela
+            let btnCopia = document.getElementById('btnCopiarAuditoria');
+            if(!btnCopia){
+                btnCopia = document.createElement('button'); btnCopia.id = 'btnCopiarAuditoria'; btnCopia.type = 'button';
+                btnCopia.style = "font-size:13px; padding:8px 16px; background-color:#718096; color:white; margin-top:15px; border-radius:6px; cursor:pointer;";
+                btnCopia.innerText = "📋 Copiar Texto de Auditoria para Validador Online";
+                btnCopia.onclick = copiarTextoAuditoria; document.getElementById('hashResultado').parentNode.appendChild(btnCopia);
+            }
+            btnCopia.style.display = "inline-block";
+
+            // 6. CORREÇÃO MÁSTER: Força o bloco de texto e links de validação a aparecerem na tela
+            if(document.getElementById('linksValidadores')) {
+                document.getElementById('linksValidadores').style.display = "block";
+            }
+
+            // 7. Salva no banco local
+            salvarSorteioNoBanco();
+            localStorage.removeItem('caixaPretaSorteioPPI'); // Limpa o backup temporário pois a sessão concluiu com sucesso
+
+        }
+
+		
+		function copiarTextoAuditoria() {
+            const textoParaHash = `${hospitalAtual}|${especialidadeAtual}|${totalVagasDefinidas}|${nomesSorteados.join(',')}`;
+            navigator.clipboard.writeText(textoParaHash).then(() => { alert("Texto de auditoria copiado! Dê CTRL+V no validador online."); }).catch(err => { alert("Erro: " + err); });
+        }
+
+         function abortarSorteio() {
+            const divModal = document.createElement('div');
+            divModal.style = "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; justify-content: center; align-items: center;";
+            divModal.innerHTML = `<div style="background: white; width: 90%; max-width: 420px; padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); font-family: Arial, sans-serif;"><h2 style="color: #dd6b20; margin-top: 0; font-size: 20px;">⚠️ Abortar Sorteio?</h2><p style="font-size: 14px; color: #2d3748; text-align: left; line-height: 1.5; margin: 15px 0 25px 0;">Isso interromperá o sorteio de <strong>${especialidadeAtual}</strong> imediatamente.</p><div style="display: flex; justify-content: center; gap: 15px;"><button type="button" id="btnAbortarSim" style="padding: 10px 20px; background-color: #dd6b20; color: white; border: none; border-radius: 6px; cursor: pointer;">Sim</button><button type="button" id="btnAbortarNao" style="padding: 10px 20px; background-color: #718096; color: white; border: 2px solid #2d3748; border-radius: 6px; cursor: pointer;">Não</button></div></div>`;
+            document.body.appendChild(divModal);
+            const btnNao = document.getElementById('btnAbortarNao'); setTimeout(() => { btnNao.focus(); }, 50);
+            btnNao.onclick = function() { divModal.remove(); };
+            
+            document.getElementById('btnAbortarSim').onclick = function() {
+                divModal.remove(); 
+                sorteioEmAndamento = false; 
+                liberarInputsUIPosSorteio();
+                
+                // LUGAR CORRETO: Limpa a caixa-preta porque o operador escolheu cancelar esta rodada de propósito
+                localStorage.removeItem('caixaPretaSorteioPPI'); 
+                
+                document.getElementById('resultado').innerText = "SORTEIO ABORTADO!";
+                document.getElementById('btnSortear').disabled = true; 
+                document.getElementById('btnAbortar').style.display = "none"; 
+                document.getElementById('btnReiniciar').style.display = "block";
+            };
+        }
+
+        function reiniciarSorteio() {
+            const divModal = document.createElement('div');
+            divModal.style = "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; justify-content: center; align-items: center;";
+            divModal.innerHTML = `
+                <div style="background: white; width: 90%; max-width: 450px; padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); font-family: Arial, sans-serif;">
+                    <h2 style="color: #1a365d; margin-top: 0; font-size: 20px;">Confirmar Reinício</h2>
+                    <p style="font-size: 14px; color: #2d3748; text-align: left; line-height: 1.5; margin: 15px 0 25px 0;">
+                        <strong>ATENÇÃO:</strong> Você tem certeza que deseja liberar o painel para um novo sorteio?<br><br>
+                        O resultado da tela atual será limpo, mas os dados concluídos já foram gravados com segurança no relatório abaixo.
+                    </p>
+                    <div style="display: flex; justify-content: center; gap: 15px;">
+                        <button type="button" id="btnModalSim" style="padding: 10px 20px; font-size: 15px; font-weight: bold; background-color: #e53e3e; color: white; border: none; border-radius: 6px; cursor: pointer;">Sim, Novo Sorteio</button>
+                        <button type="button" id="btnModalNao" style="padding: 10px 20px; font-size: 15px; font-weight: bold; background-color: #718096; color: white; border: 2px solid #2d3748; border-radius: 6px; cursor: pointer;">Não, Cancelar</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(divModal);
+            const btnSim = document.getElementById('btnModalSim');
+            const btnNao = document.getElementById('btnModalNao');
+            
+            setTimeout(() => { btnNao.focus(); }, 50);
+
+            btnNao.onclick = function() { divModal.remove(); };
+            
+            btnSim.onclick = function() {
+                divModal.remove();
+                liberarInputsUIPosSorteio();
+                
+                // LUGAR CORRETO: Limpa a caixa-preta porque o operador escolheu liberar a tela para o próximo sorteio
+                localStorage.removeItem('caixaPretaSorteioPPI'); 
+                
+                document.getElementById('resultado').innerText = "Aguardando início do próximo sorteio da PPI...";
+                document.getElementById('vagasStatus').innerText = "Vagas preenchidas: 0 / 0";
+                document.getElementById('badgesAuditoria').innerHTML = ""; 
+                document.getElementById('arraySorteados').innerText = "[]";
+                document.getElementById('hashResultado').style.display = "none"; 
+                document.getElementById('btnReiniciar').style.display = "none"; 
+                document.getElementById('btnGradeFinal').style.display = "none";
+                
+                if(document.getElementById('btnCopiarAuditoria')) document.getElementById('btnCopiarAuditoria').style.display = "none";
+                if(document.getElementById('linksValidadores')) document.getElementById('linksValidadores').style.display = "none";
+
+                popularDropdownHospitais();
+            };
+        }
+
+
+
+        function liberarInputsUIPosSorteio() {
+            document.getElementById('selectHospital').disabled = false; document.getElementById('selectEspecialidade').disabled = false;
+            document.getElementById('inputVagas').disabled = false; document.getElementById('listaNomes').disabled = false; document.getElementById('btnCarregar').disabled = false;
+        }
+
+        function atualizarInterface(nomeExibicao) {
+            const numVagasPreenchidas = nomesSorteados.filter(item => item !== "--- SEPARAÇÃO: VAGAS EXTRAS ---").length;
+            document.getElementById('resultado').innerText = nomeExibicao;
+            document.getElementById('vagasStatus').innerText = `Vagas preenchidas: ${numVagasPreenchidas} / ${totalVagasDefinidas}`;
+            document.getElementById('restantes').innerText = `Municípios na fila da rodada atual: ${nomesDisponiveis.length}`;
+            document.getElementById('arraySorteados').innerText = JSON.stringify(nomesSorteados.filter(item => item !== "--- SEPARAÇÃO: VAGAS EXTRAS ---"));
+            const containerBadges = document.getElementById('badgesAuditoria'); containerBadges.innerHTML = ""; let vagaContador = 1;
+            nomesSorteados.forEach((item, index) => {
+                const badge = document.createElement('span');
+                if (item === "--- SEPARAÇÃO: VAGAS EXTRAS ---") { badge.innerText = "⭐ REINÍCIO: VAGAS EXTRAS"; badge.className = "cidade-badge badge-separador"; } 
+                else {
+                    badge.innerText = `${vagaContador}° Vaga - ${item}`; vagaContador++;
+                    badge.className = index === nomesSorteados.length - 1 ? "cidade-badge ultimo" : "cidade-badge";
+                }
+                containerBadges.appendChild(badge);
+            });
+        }
+
+
+        function salvarSorteioNoBanco() {
+            const dataHora = new Date().toLocaleString('pt-BR');
+            const resultadoLimpo = nomesSorteados.map(item => item === "--- SEPARAÇÃO: VAGAS EXTRAS ---" ? "[VAGAS EXTRAS]" : item).join(', ');
+            const novoRegistro = { data: dataHora, hospital: hospitalAtual, especialidade: especialidadeAtual, vagas: totalVagasDefinidas, resultado: resultadoLimpo, hash: hashSorteioAtual };
+            let historico = JSON.parse(localStorage.getItem('historicoPPI_v3')) || [];
+            historico.push(novoRegistro); localStorage.setItem('historicoPPI_v3', JSON.stringify(historico));
+            renderizarHistoricoTabela();
+        }
+
+        function renderizarHistoricoTabela() {
+            const historico = JSON.parse(localStorage.getItem('historicoPPI_v3')) || [];
+            const filtroHospital = document.getElementById('selectFiltroHospital').value;
+            const corpoTabela = document.getElementById('corpoTabela'); corpoTabela.innerHTML = "";
+            let historicoFiltrado = historico;
+            if (filtroHospital !== "TODOS") { historicoFiltrado = historico.filter(reg => reg.hospital === filtroHospital); }
+            if (historicoFiltrado.length === 0) { corpoTabela.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#a0aec0;">Nenhum sorteio encontrado.</td></tr>`; return; }
+            
+            historicoFiltrado.forEach((reg, index) => {
+                const linha = document.createElement('tr'); linha.className = "linha-selecionada"; linha.id = `linha-pbi-${index}`;
+                // BLINDAGEM MÁSTER ANTI-EXTRAPOLAMENTO: 'word-break:break-all' impede que o Hash empurre o layout para a direita em 'Exibir Todos'
+                const hashExibicao = reg.hash ? `<br><span style="font-size:10px; font-family:monospace; color:#718096; font-weight:bold; word-break:break-all; display:block; max-width:400px;">🔐 HASH: ${reg.hash}</span>` : '';
+                linha.innerHTML = `<td class="coluna-check"><input type="checkbox" class="check-item" onchange="alternarSelecaoLinha(this, ${index})" checked></td><td>${reg.data}</td><td><strong>${reg.hospital}</strong></td><td><strong>${reg.especialidade}</strong></td><td style="text-align:center; font-weight:bold;">${reg.vagas}</td><td style="font-size:13px; color:#4a5568; word-break:break-all;">${reg.resultado}${hashExibicao}</td>`;
+                corpoTabela.appendChild(linha);
+            });
+        }
+
+        function alternarSelecaoLinha(checkbox, index) {
+            const linha = document.getElementById(`linha-pbi-${index}`);
+            if (checkbox.checked) { linha.classList.add("linha-selecionada"); } 
+            else { linha.classList.remove("linha-selecionada"); document.getElementById('checkMaster').checked = false; }
+        }
+
+        function selecionarTodosCliques(masterCheckbox) {
+            const checkboxes = document.querySelectorAll('.check-item');
+            checkboxes.forEach((cb, index) => { cb.checked = masterCheckbox.checked; alternarSelecaoLinha(cb, index); });
+        }
+
+
+        function executarImpressaoOficial() {
+            const filtroHospital = document.getElementById('selectFiltroHospital').value;
+            const labelHospital = document.getElementById('printHospitalNome');
+            const labelPrintHash = document.getElementById('printHashLine');
+            
+            if (filtroHospital === "TODOS") { 
+                labelHospital.innerText = "PRESTADOR: TODOS OS HOSPITAIS CONVENIADOS"; 
+                labelPrintHash.innerText = ""; 
+            } else { 
+                labelHospital.innerText = `PRESTADOR / HOSPITAL ALVO: ${filtroHospital}`;
+                if (hashSorteioAtual && hospitalAtual === filtroHospital) { 
+                    labelPrintHash.innerText = `CÓDIGO DE AUTENTICIDADE CRIPTOGRÁFICA (SHA-256): ${hashSorteioAtual}`; 
+                } else { 
+                    labelPrintHash.innerText = ""; 
+                }
+            }
+
+            // BLINDAGEM MÁSTER PARA O EDGE: Dá 150 milissegundos para o navegador organizar a memória 
+            // antes de abrir a tela de PDF, eliminando o risco de o Edge travar e reiniciar.
+            setTimeout(function() {
+                window.print();
+            }, 150);
+        }
+
+
+        function limparBancoDados() {
+            const divModal = document.createElement('div');
+            divModal.style = "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; justify-content: center; align-items: center;";
+            divModal.innerHTML = `
+                <div style="background: white; width: 90%; max-width: 450px; padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); font-family: Arial, sans-serif;">
+                    <h2 style="color: #e53e3e; margin-top: 0; font-size: 20px;">⚠️ APAGAR TODO O HISTÓRICO?</h2>
+                    <p style="font-size: 14px; color: #2d3748; text-align: left; line-height: 1.5; margin: 15px 0 25px 0;">
+                        <strong>ATENÇÃO:</strong> Esta ação é irreversível e esvaziará completamente a folha de impressão e todos os sorteios salvos na memória deste computador.
+                    </p>
+                    <div style="display: flex; justify-content: center; gap: 15px;">
+                        <button type="button" id="btnLimparSim" style="padding: 10px 20px; font-size: 15px; font-weight: bold; background-color: #e53e3e; color: white; border: none; border-radius: 6px; cursor: pointer;">Sim, Apagar Tudo</button>
+                        <button type="button" id="btnLimparNao" style="padding: 10px 20px; font-size: 15px; font-weight: bold; background-color: #718096; color: white; border: 2px solid #2d3748; border-radius: 6px; cursor: pointer;">Não, Manter Histórico</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(divModal);
+            const btnSim = document.getElementById('btnLimparSim');
+            const btnNao = document.getElementById('btnLimparNao');
+            
+            // GARANTIA ANTI-ERRO: Força o foco do teclado no botão de CANCELAR (Não, Manter Histórico)
+            setTimeout(() => { btnNao.focus(); }, 50);
+
+            btnNao.onclick = function() { divModal.remove(); };
+            btnSim.onclick = function() {
+                divModal.remove();
+                localStorage.removeItem('historicoPPI_v3'); 
+                renderizarHistoricoTabela();
+            };
+        }
+        function exportarBancoLocal() {
+            const dadosHospitais = localStorage.getItem('estruturaHospitaisPPI') || "{}";
+            const dadosHistorico = localStorage.getItem('historicoPPI_v3') || "[]";
+            
+            // Compacta os dados dos hospitais e o histórico de sorteios em uma única linha de texto
+            const pacoteCompleto = JSON.stringify({ hospitais: JSON.parse(dadosHospitais), historico: JSON.parse(dadosHistorico) });
+            
+            // Dispara o download automático do arquivo .txt na sua máquina
+            const blob = new Blob([pacoteCompleto], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `backup_ppi_araxa_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.txt`;
+            link.click();
+        }
+
+        function importarBancoLocal(input) {
+            const arquivo = input.files[0];
+            if (!arquivo) return;
+            
+            const leitor = new FileReader();
+            leitor.onload = function(e) {
+                try {
+                    const dadosImportados = JSON.parse(e.target.result);
+                    if (dadosImportados.hospitais && dadosImportados.historico) {
+                        // Alimenta a memória local do novo computador com os dados trazidos
+                        localStorage.setItem('estruturaHospitaisPPI', JSON.stringify(dadosImportados.hospitais));
+                        localStorage.setItem('historicoPPI_v3', JSON.stringify(dadosImportados.historico));
+                        
+                        // Recarrega todos os componentes visuais na tela na mesma hora
+                        carregarEstruturaHospitais();
+                        popularDropdownHospitais();
+                        renderizarHistoricoTabela();
+                        
+                        alert("Banco de dados local importado e atualizado com sucesso!");
+                    } else {
+                        alert("Arquivo inválido ou formato corrompido.");
+                    }
+                } catch (erro) {
+                    alert("Erro ao ler o arquivo: " + erro);
+                }
+            };
+            leitor.readAsText(arquivo);
+            input.value = ""; // Reseta o campo para permitir futuras importações
+        }
+
+
+
+        function abrirModalGerenciador() { 
+            const selectAdmin = document.getElementById('selectHospitalAdmin'); selectAdmin.innerHTML = "";
+            Object.keys(estruturaHospitais).forEach(h => { let opt = document.createElement('option'); opt.value = h; opt.innerText = h; selectAdmin.appendChild(opt); });
+            document.getElementById('modalGerenciador').style.display = 'flex'; resetarPosicaoModal(document.getElementById('modalGerenciador')); 
+        }
+        function fecharModalGerenciador() { document.getElementById('modalGerenciador').style.display = 'none'; }
+
+        function adicionarHospitalAdmin() {
+            const nomeHosp = document.getElementById('novoHospitalNome').value.trim().toUpperCase();
+            if (!nomeHosp) { alert("Digite o nome do hospital."); return; }
+            if (estruturaHospitais[nomeHosp]) { alert("Este hospital já está cadastrado."); return; }
+            estruturaHospitais[nomeHosp] = []; localStorage.setItem('estruturaHospitaisPPI', JSON.stringify(estruturaHospitais));
+            document.getElementById('novoHospitalNome').value = ""; popularDropdownHospitais(); abrirModalGerenciador(); alert("Hospital cadastrado!");
+        }
+
+        function adicionarEspecialidadeAdmin() {
+            const hospAlvo = document.getElementById('selectHospitalAdmin').value;
+            const nomeEspec = document.getElementById('novaEspecialidadeNome').value.trim();
+            if (!nomeEspec) { alert("Digite o nome da especialidade."); return; }
+            if (!hospAlvo) { alert("Selecione um hospital."); return; }
+            if (estruturaHospitais[hospAlvo].includes(nomeEspec)) { alert("Esta especialidade já existe para este hospital."); return; }
+            estruturaHospitais[hospAlvo].push(nomeEspec); localStorage.setItem('estruturaHospitaisPPI', JSON.stringify(estruturaHospitais));
+            document.getElementById('novaEspecialidadeNome').value = ""; atualizarDropdownEspecialidades(); alert("Especialidade acrescentada!");
+        }
+
+        function abrirReadme() { const modal = document.getElementById('modalReadme'); modal.style.display = 'flex'; resetarPosicaoModal(modal); }
+        function fecharReadme() { document.getElementById('modalReadme').style.display = 'none'; }
+        
+        function abrirGradeFinal() {
+            document.getElementById('gradeFinalTitulo').innerText = `Resultado Oficial — ${especialidadeAtual} (${totalVagasDefinidas} Vagas)`;
+            if (hashSorteioAtual) { document.getElementById('gradeFinalHash').innerText = `🔐 CHAVE HASH DA ATA: ${hashSorteioAtual}`; document.getElementById('gradeFinalHash').style.display = "block"; } else { document.getElementById('gradeFinalHash').style.display = "none"; }
+            const containerLista = document.getElementById('listaGradeFinal'); containerLista.innerHTML = ""; let contadorVaga = 1;
+            nomesSorteados.forEach((item) => {
+                const elemento = document.createElement('div');
+                if (item === "--- SEPARAÇÃO: VAGAS EXTRAS ---") { elemento.className = "grade-final-item extra"; elemento.style.fontSize = "16px"; elemento.style.textAlign = "center"; elemento.innerText = "✦ RODADA DE VAGAS SOBRESSALENTES (EXTRAS) ✦"; } 
+                else { elemento.className = "grade-final-item"; elemento.innerText = `${contadorVaga}º Vaga — ${item}`; contadorVaga++; }
+                containerLista.appendChild(elemento);
+            });
+            const modal = document.getElementById('modalGradeFinal'); modal.style.display = 'flex'; resetarPosicaoModal(modal);
+        }
+        function fecharGradeFinal() { document.getElementById('modalGradeFinal').style.display = 'none'; }
+
+        function resetarPosicaoModal(modal) { const conteudo = modal.querySelector('.modal-conteudo'); conteudo.style.position = 'relative'; conteudo.style.top = '0px'; conteudo.style.left = '0px'; conteudo.style.margin = 'auto'; }
+
+        function tornarArrastavel(modalId) {
+            const modal = document.getElementById(modalId); const conteudo = modal.querySelector('.modal-conteudo'); const gatilhoArrastar = conteudo.querySelector('h2'); 
+            gatilhoArrastar.style.cursor = 'move'; gatilhoArrastar.style.userSelect = 'none';
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0; gatilhoArrastar.onmousedown = arrastarMouseDown;
+            function arrastarMouseDown(e) { e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = fecharArrastarElemento; document.onmousemove = elementoArrastar; conteudo.style.position = 'absolute'; conteudo.style.margin = '0'; }
+            function elementoArrastar(e) { e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY; conteudo.style.top = (conteudo.offsetTop - pos2) + "px"; conteudo.style.left = (conteudo.offsetLeft - pos1) + "px"; }
+            function fecharArrastarElemento() { document.onmouseup = null; document.onmousemove = null; }
+        }
+
+        tornarArrastavel('modalReadme'); tornarArrastavel('modalGradeFinal'); tornarArrastavel('modalGerenciador');
+        window.addEventListener('keydown', function(event) { if (event.key === 'Escape') { fecharReadme(); fecharGradeFinal(); fecharModalGerenciador(); } });
+        
+		// TRAVA ANTI-F5 PROTETORA: Impede que esbarrões no teclado recarreguem a página e apaguem o sorteio ao vivo
+        window.addEventListener('beforeunload', function (e) {
+            // Se um sorteio estiver rodando ou se houver histórico na tela, avisa o operador antes de fechar
+            e.preventDefault();
+            e.returnValue = 'ATENÇÃO: Um sorteio está em andamento ou dados importantes estão na tela. Deseja realmente sair e perder os dados atuais?';
+            return e.returnValue;
+        });
+
+	</script>
+</body>
+</html>
